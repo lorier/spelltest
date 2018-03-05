@@ -1,0 +1,11 @@
+body {
+	padding: 20px;
+}
+div, h1 {
+	padding: 10px;
+}
+textarea {
+	border: 5px solid gray;
+	padding: 10px;
+	border-radius: 15px;
+}
