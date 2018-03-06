@@ -7,5 +7,12 @@ div, h1 {
 textarea {
 	border: 5px solid gray;
 	padding: 10px;
+	width: 100%;
 	border-radius: 15px;
+}
+#snippets p {
+	display:none;
+}
+#snippets p:first-child {
+	display: block;
 }

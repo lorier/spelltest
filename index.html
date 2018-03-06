@@ -11,19 +11,53 @@
 	</head>
 	<body>
 		<h1>Typing Test</h1>
-		<div id="origin-text">
-			<p>This is a test.</p>
-		</div>
-		<div id="test-wrapper">
-			<textarea id="test-area" rows="6" name="textarea" placeholder="Start typing."></textarea>
-		</div>
-		<div>
-			<h2 id="timer">00:00:00</h2>
-		</div>
-		<div>
-			<button id="startbutton" class="btn btn-primary">Start Over</button>
+		<div class="columns">
+			<div class="row">
+				<div class="col-md-6">
+					<div id="origin-text">
+					</div>
+					<div id="snippets">
+					</div>
+					<div id="test-wrapper">
+						<textarea  id="test-area" rows="6" name="textarea" placeholder="Start typing."></textarea>
+					</div>
+					<div>
+						<button id="startbutton" class="btn btn-primary">Start Over</button>
+						<button id="log_score" class="btn btn-outline-secondary">Log this test!</button>
+					</div>
+					
+				</div>
+				<div class="col-md-6">
+					<div>
+						<h2>Timer</h2>
+						<h3 id="timer">00:00:00</h3>
+						<hr>
+						<h2>Errors</h3>
+						<h3 id="error-count">0</h3>
+
+					</div>
+
+					
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+					<h2>Best times:</h2>
+						<ul>
+						    <li class="time"> </li>
+						</ul>
+				</div>
+				</div>
+			</div>
 		</div>
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 		<script src="scripts.js"></script>
 	</body>
-</html>			
+</html>
+
+<!-- 
+$url = 'https://baconipsum.com/api/?type=all-meat&sentences=5&format=json'; // path to your JSON file
+$file = '../bacon.js';
+$entries = file_get_contents($url); // put the contents of the file into a variable // decode the JSON feed
+print_r($entries);
+file_put_contents ( $file , $entries );
+?> -->
