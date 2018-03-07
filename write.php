@@ -3,7 +3,6 @@
 	
 	if( isset($_POST["score"]) )
 	{	
-
 		$s = $_POST["score"];
 		$file = 'scores.txt';
 		$current = file_get_contents($file);

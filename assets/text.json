@@ -1,22 +1,27 @@
 [
 	{
 	"id": 1,
+	"count": 9,
 	"text" : "The quick brown fox jumped over the lazy dog."
 	},
 	{
 	"id": 2,
+	"count": 107,
 	"text" : "The most merciful thing in the world, I think, is the inability of the human mind to correlate all its contents. We live on a placid island of ignorance in the midst of black seas of infinity, and it was not meant that we should voyage far. The sciences, each straining in its own direction, have hitherto harmed us little; but some day the piecing together of dissociated knowledge will open up such terrifying vistas of reality, and of our frightful position therein, that we shall either go mad from the revelation or flee from the light into the peace and safety of a new dark age."
 	},
 	{
 	"id": 3,
+	"count": 73,
 	"text" : "Beginning with a critique of my own limbs, which she said, justly enough, were nothing to write home about, this girl went on to dissect my manners, morals, intellect, general physique, and method of eating asparagus with such acerbity that by the time she had finished the best you could say of Bertram was that, so far as was known, he had never actually committed murder or set fire to an orphan asylum."
 	},
 	{
 	"id": 4,
+	"count": 76,
 	"text" : "I think the world divides neatly into those who are excited by the managed induction of terror and those who are not. I do not find terror exciting. I find it terrifying. One of my basic goals is to subject my nervous system to as little total terror as possible. The cruel paradox of course is that this kind of makeup usually goes hand in hand with a delicate nervous system that’s extremely easy to terrify."
 	},
 	{
 	"id": 5,
+	"count": 87,
 	"text" : "I do not understand the festival experience. These people, these disgusting lowlifes we’re driving through, they fought to get in here. They think they’re lucky. They spent hours on the phone trying to get tickets, happily paying hundreds of pounds for a pair when they managed to find some. Now they’re celebrating being here, celebrating the fact that they can lie around in urine-flavoured mud drinking warm lager and eating burgers prepared by some syphilitic gyppo while fucking Cast knock out their greatest hits in the distance."
 	}
 ]

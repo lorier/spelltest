@@ -13,7 +13,7 @@ gulp.task('html', function() {
     .pipe(livereload());
 });
 gulp.task('php', function() {
-  gulp.src('write.php')
+  gulp.src('*.php')
     .pipe(gulp.dest('dist'))
     .pipe(livereload());
 });

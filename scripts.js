@@ -1,7 +1,7 @@
 (function(){
 
-	var originText;
-	var entryWrapper = document.querySelector('#test-wrapper');
+	var testSnippet;
+	// var entryWrapper = document.querySelector('#test-wrapper');
 	var userEntry = document.querySelector('#test-area');
 	var timer = document.querySelector('#timer');
 	var btn = document.querySelector('#startbutton');
@@ -14,14 +14,11 @@
 	var time = [0,0,0,0];
 	var errorCount = 0;
 
-	var baconReq;
+	var txtReq;
 
 	//TODOS
-	// - get x number of text options from bacon ipsum
-	// - store in json file
 	// - make select dropdown for which one you want to test agains
 	// - make table of times per text attempt
-	// -
 
 	//AJAX POST SCORES 
 	const postScores = (time) => {
@@ -43,16 +40,16 @@
 
 	//AJAX GET TEST TEXT
 	const makeReq = () => {
-		baconReq = new XMLHttpRequest();
-		baconReq.responseType = "json";
-		baconReq.onreadystatechange = getNewTestString;
-		baconReq.open('GET', 'assets/text.json');
-		baconReq.send();
+		txtReq = new XMLHttpRequest();
+		txtReq.responseType = "json";
+		txtReq.onreadystatechange = getNewTestString;
+		txtReq.open('GET', 'assets/text.json');
+		txtReq.send();
 	}
 	const getNewTestString = () => {
-		if (baconReq.readyState === XMLHttpRequest.DONE) {
-	      if (baconReq.status === 200) {
-	      	setRadioButtons(baconReq.response);
+		if (txtReq.readyState === XMLHttpRequest.DONE) {
+	      if (txtReq.status === 200) {
+	      	setRadioButtons(txtReq.response);
 	      } else {
 	        alert('There was a problem with the request.');
 	      }
@@ -65,43 +62,57 @@
 
 			let id = el.id;
 			let t = el.text;
-
-			let input = document.createElement("input");
-			input.setAttribute("value", id);
-			input.setAttribute("type", "radio");
-			input.setAttribute("name", "snippet");
-			input.setAttribute("id", "rb-" + id);
-			input.addEventListener("click", selectTextSample);
-			rbs.appendChild(input);
+			let count = el.count;
 			
-			let label = document.createElement("label");
-			label.setAttribute("class", "label");
-			label.setAttribute("id", "label" + id);
-			label.setAttribute("for", "rb-" + id);
-			label.textContent = "Option " + id;
-			rbs.appendChild(label);
+			//create buttons
+			let opt = document.createElement("a");
+			opt.setAttribute("class", "opt");
+			opt.setAttribute("id", "opt" + id);
+			opt.setAttribute("for", "rb-" + id);
+			opt.textContent = id;
+			opt.addEventListener("click", selectTextSample);
+			rbs.appendChild(opt);
 
+			//create text blocks
+			let snippetContainer = document.createElement("div");
+			let wc = document.createElement("span");
 			let snippet = document.createElement("p");
+			
+			wc.textContent = "Word count: " + count;
+			snippetContainer.appendChild(wc);
+			snippetContainer.setAttribute("id", "snippet-" + id);
+			snippetContainer.setAttribute("class", "snippet-container");
+			
 			snippet.setAttribute("class", "snippet");
-			snippet.setAttribute("id", "snippet-" + id);
 			snippet.textContent = t;
-			snippets.appendChild(snippet);
+			snippetContainer.appendChild(snippet);
+
+			snippets.appendChild(snippetContainer);
 		});
-		let first = document.querySelector("#rb-1");
-		first.setAttribute("checked", "checked");
+		let first = document.querySelector("#opt1");
+		first.classList.add("active");
 
 		let firstSnippet = document.querySelector("#snippet-1");
 		firstSnippet.classList.add("active");
 
-		originText = document.querySelector('.active');
+		testSnippet = document.querySelector('.snippet-container.active p');
 	}
 
 	const selectTextSample = (e) => {
-		let id = e.target.id.substr(3,1); //extract numeral from id;
-		// if(e.target.checked){ return };
-		document.querySelectorAll('#snippets p').forEach((el)=>{
+		let buttonId = e.target.id.substr(3,1); //extract numeral from id;
+		let buttons = document.querySelectorAll(".opt");
+		if (e.target.classList.contains('active') ){
+			//do nothing
+		}else {
+			buttons.forEach((el)=>{
+				el.classList.remove("active");
+				console.log(el);
+			})
+			e.target.classList.add('active');
+		}
+		document.querySelectorAll('.snippet-container').forEach((el)=>{
 		
-			if( el.id === ("snippet-" + id) ) {
+			if( el.id === ("snippet-" + buttonId) ) {
 				el.style.display = "block";
 				el.classList.add("active");
 			}else {
@@ -151,18 +162,18 @@
 	}
 
 	const spellCheck = (e) => {
-		if(userEntry.value === originText.innerHTML.substr(0, userEntry.value.length) ){
+		if(userEntry.value === testSnippet.innerHTML.substr(0, userEntry.value.length) ){
 
-			 if (userEntry.value.length === originText.innerHTML.length ){
-			 	userEntry.style.borderColor = 'green';
+			 if (userEntry.value.length === testSnippet.innerHTML.length ){
+			 	userEntry.style.borderColor = '#6ab04c';
 			 	userEntry.disabled = true;
 				resetTimer();
 
 			 }else {
-			 	userEntry.style.borderColor = 'blue';
+			 	userEntry.style.borderColor = '#22a6b3';
 			 }
 		}else {
-			userEntry.style.borderColor = 'red';
+			userEntry.style.borderColor = '#eb4d4b';
 			if ( e.code !== "Backspace"){
 				errorCount++;
 				errors.textContent = errorCount;
