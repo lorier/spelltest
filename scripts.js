@@ -7,11 +7,12 @@
 	var btn = document.querySelector('#startbutton');
 	var errors = document.querySelector('#error-count');
 	var logScore = document.querySelector("#log_score");
+	var postScore = document.querySelector("#post_score");
 
 	var interval;
 	var timerRunning = false;
 
-	var time = [0,0,0,0];
+	// var time = [0,0,0,0];
 	var errorCount = 0;
 
 	var txtReq;
@@ -20,36 +21,63 @@
 	// - make select dropdown for which one you want to test agains
 	// - make table of times per text attempt
 
-	//AJAX POST SCORES 
-	const postScores = (time) => {
-		xhr = new XMLHttpRequest();
-		xhr.open('POST', 'write.php', true);	
-		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		xhr.onload = () => {
-		    if (xhr.status !== 200) {
-		        alert('Request failed.  Returned status of ' + xhr.status);
-		    }else {
-		    	// alert('Request sent')
-		    }
-		};
-		xhr.send("score=" + time);
+	//AJAX Get SCORES 
+	const postScoreReq = () => {
+		alert('score posted');
 	}
+
+
+	//AJAX Get SCORES 
+	const makeScoresReq = () => {
+		xhr = new XMLHttpRequest();
+		xhr.responseType = "json";
+		xhr.open('GET', 'http://localhost/typingtest/dist/api/v1/scores', true);	
+		xhr.onreadystatechange = () => {
+			if( xhr.readyState === 4 && xhr.status === 200){
+					console.log(xhr.response);
+					listScores(xhr.response);
+			}
+		};
+		xhr.send();
+	}
+	const listScores = (resp) => {
+		// if (resp.readyState === XMLHttpRequest.DONE) {
+		// 	if (resp.status === 200) {
+		if (resp === null) {
+			alert('Sorry, no scores');
+			return;
+		}
+		resp = JSON.parse(resp);
+		// console.log(r);
+		let list = document.querySelector('#scores');
+		resp.forEach((item)=>{
+			let listItem = document.createElement('li');
+			listItem.textContent = `${item.date}: ${item.score}`;
+			list.appendChild(listItem);
+		})
+			// } else {
+			// 	alert('Sorry, there was a problem retrieving scores');
+			// }
+		// }
+	}
+
 	const handleLog = (e) => {
 		postScores("2:00");
 	}
 
 	//AJAX GET TEST TEXT
-	const makeReq = () => {
+	const makeTextReq = () => {
 		txtReq = new XMLHttpRequest();
 		txtReq.responseType = "json";
-		txtReq.onreadystatechange = getNewTestString;
-		txtReq.open('GET', 'assets/text.json');
+		txtReq.onreadystatechange = getTextSnippets;
+		txtReq.open('GET', 'http://localhost/typingtest/dist/api/v1/text_snippets');
 		txtReq.send();
 	}
-	const getNewTestString = () => {
+
+	const getTextSnippets = () => {
 		if (txtReq.readyState === XMLHttpRequest.DONE) {
 	      if (txtReq.status === 200) {
-	      	setRadioButtons(txtReq.response);
+	      	setRadioButtons(JSON.parse(txtReq.response));
 	      } else {
 	        alert('There was a problem with the request.');
 	      }
@@ -185,9 +213,11 @@
 	userEntry.addEventListener('keyup', spellCheck, false);
 	btn.addEventListener('click', startOver, false);
 	logScore.addEventListener('click', handleLog);
+	postScore.addEventListener('click', postScoreReq);
 	// writebtn.addEventListener('click', fs.writeFile, false);
 
-	window.onload = makeReq;
+	window.onload = makeTextReq;
+	window.onload = makeScoresReq;
 })();
 
 

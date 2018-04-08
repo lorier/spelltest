@@ -1,0 +1,11 @@
+#http://coreymaynard.com/blog/creating-a-restful-api-with-php/
+<IfModule mod_rewrite.c>
+RewriteEngine On
+#if url doesn't match existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d
+#any other requestion should be sent to api/v1/api.php
+RewriteRule api/v1/(.*)$ api/v1/api.php?request=$1 [QSA,NC,L]
+</IfModule>
+
+#The (.*) marks a named capture, which is sent along to the MyAPI.php script as well in the request variable through the use of the $1 delimiter. At the end of that line are some flags that configure how the rewrite is performed. Firstly, [QSA] means that the named capture will be appended to the newly created URI. Second [NC] means that our URIs are not case sensitive. Finally, the [L] flag indicates that mod_rewrite should not process any additional rules if this rule matches.

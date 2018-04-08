@@ -1,8 +1,6 @@
 <?php
-$scores = '';
-$file = fopen("scores.txt", "r") or die("Error opening file");
-$scores = fread( $file,filesize("scores.txt") );
-fclose($file);
+
+
 
 echo <<<EOT
 
@@ -40,6 +38,7 @@ echo <<<EOT
 						<div>
 							<button id="startbutton" class="btn btn-lg btn-primary">Start Over</button>
 							<button id="log_score" class="btn btn-outline-secondary">Log this test!</button>
+							<button id="post_score" class="btn btn-outline-secondary">Post Your Score!</button>
 						</div>
 					</div>
 					<div class="col-md-4 stats">
@@ -55,7 +54,7 @@ echo <<<EOT
 				<div class="row">
 					<div class="col-md-12">
 						<h2>Best times:</h2>
-						<p>$scores</p>
+						<ul id="scores"></ul>
 					</div>
 				</div>
 			</div>

@@ -22,9 +22,19 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('dist'))
     .pipe(livereload());
 });
+gulp.task('dotfiles', function() {
+  gulp.src('.htaccess')
+    .pipe(gulp.dest('dist'))
+    .pipe(livereload());
+});
 gulp.task('copy', function() {
   gulp.src('assets/*.*')
     .pipe(gulp.dest('dist/assets'))
+    .pipe(livereload());
+});
+gulp.task('api', function() {
+  gulp.src('api/*/*.*')
+    .pipe(gulp.dest('dist/api'))
     .pipe(livereload());
 });
 gulp.task('watch', function() {
@@ -34,7 +44,9 @@ gulp.task('watch', function() {
   gulp.watch('*.php', ['php']);
   gulp.watch('scripts.js', ['scripts']);
   gulp.watch('assets/*.*', ['copy']);
+  gulp.watch('.htaccess', ['dotfiles']);
+  gulp.watch('api/*/*.*', ['api']);
 
 });	
-gulp.task('build', ['css', 'html', 'php', 'scripts', 'copy']);
+gulp.task('build', ['css', 'html', 'php', 'scripts', 'copy', 'dotfiles', 'api']);
 gulp.task('default', ['watch']);
