@@ -1,89 +1,118 @@
+import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } from './modules/helpers.js';
+
 (function(){
 
-	var testSnippet;
+
+	// var testSnippet;
 	// var entryWrapper = document.querySelector('#test-wrapper');
 	var userEntry = document.querySelector('#test-area');
 	var timer = document.querySelector('#timer');
 	var btn = document.querySelector('#startbutton');
 	var errors = document.querySelector('#error-count');
 	var logScore = document.querySelector("#log_score");
-	var postScore = document.querySelector("#post_score");
+	var postScore = document.querySelector("#post-score");
 
 	var interval;
 	var timerRunning = false;
 
-	// var time = [0,0,0,0];
+	var time = [0,0,0,0];
 	var errorCount = 0;
 
-	var txtReq;
+	// var txtReq;
 
-	//TODOS
-	// - make select dropdown for which one you want to test agains
-	// - make table of times per text attempt
+	var xhr;
+	
+	const init = () => {
+		userEntry.addEventListener('keypress', start, false);
+		userEntry.addEventListener('keyup', spellCheck, false);
+		btn.addEventListener('click', startOver, false);
+		postScore.addEventListener('click', postScoreReq);
+		// writebtn.addEventListener('click', fs.writeFile, false);
 
-	//AJAX Get SCORES 
-	const postScoreReq = () => {
-		alert('score posted');
+		window.onload = () => {
+			
+			//text
+			makeAjaxCall('GET', 'http://localhost/typingtest/dist/api/v1/text_snippets', setRadioButtons);
+			
+			//scores
+			makeAjaxCall('GET', 'http://localhost/typingtest/dist/api/v1/scores', listScores);
+		}
+		
 	}
 
+	//AJAX POST SCORES 
+	const postScoreReq = () => {
+		let date = new Date();
+		let dateString = 
+					date.getHours() 
+					+ ':' 
+					+ date.getSeconds() 
+					+ ' ' 
+					+ (date.getMonth() + 1)
+					+ '-' 
+					+ date.getDate() 
+					+ '-' 
+					+ date.getFullYear();
 
-	//AJAX Get SCORES 
-	const makeScoresReq = () => {
-		xhr = new XMLHttpRequest();
-		xhr.responseType = "json";
-		xhr.open('GET', 'http://localhost/typingtest/dist/api/v1/scores', true);	
+		let data = 'date=' + postEncodeURIComponent(dateString)
+					+ '&score=' +  postEncodeURIComponent( timer.innerHTML.replace(/\s/g, '') );
+
+		let xhr = new XMLHttpRequest();
+
+		makeAjaxCall('POST', 'http://localhost/typingtest/dist/api/v1/scores',  listScores, data);
+		//TODO ^^ modify ajax function to accept and test if args contain request header and data. Can these be passed as an object? Does ES6 do args?
+		
+		xhr.open('POST', 'http://localhost/typingtest/dist/api/v1/scores', true);
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhr.onreadystatechange = () => {
 			if( xhr.readyState === 4 && xhr.status === 200){
-					console.log(xhr.response);
-					listScores(xhr.response);
 			}
 		};
-		xhr.send();
+		xhr.send(data);
+		console.log(data);
 	}
+
+
+	
 	const listScores = (resp) => {
-		// if (resp.readyState === XMLHttpRequest.DONE) {
-		// 	if (resp.status === 200) {
 		if (resp === null) {
 			alert('Sorry, no scores');
 			return;
 		}
-		resp = JSON.parse(resp);
 		// console.log(r);
 		let list = document.querySelector('#scores');
+		//remove list items if any
+		while (list.firstChild) {
+		  list.removeChild(list.firstChild);
+		}
 		resp.forEach((item)=>{
 			let listItem = document.createElement('li');
 			listItem.textContent = `${item.date}: ${item.score}`;
 			list.appendChild(listItem);
 		})
-			// } else {
-			// 	alert('Sorry, there was a problem retrieving scores');
-			// }
-		// }
-	}
-
-	const handleLog = (e) => {
-		postScores("2:00");
 	}
 
 	//AJAX GET TEST TEXT
-	const makeTextReq = () => {
-		txtReq = new XMLHttpRequest();
+	const makeAjaxCall = ( method, url, callback ) => {
+		let txtReq = new XMLHttpRequest();
+
 		txtReq.responseType = "json";
-		txtReq.onreadystatechange = getTextSnippets;
-		txtReq.open('GET', 'http://localhost/typingtest/dist/api/v1/text_snippets');
+		txtReq.onreadystatechange = () => {
+			if (txtReq.readyState === XMLHttpRequest.DONE) {
+		      if (txtReq.status === 200) {
+				console.log('xhr called for ' + url );
+		      	callback( JSON.parse(txtReq.response) );
+		      } else {
+		        alert('There was a problem with the request.');
+		      }
+		    }
+		};
+		txtReq.open( method, url );
 		txtReq.send();
 	}
 
-	const getTextSnippets = () => {
-		if (txtReq.readyState === XMLHttpRequest.DONE) {
-	      if (txtReq.status === 200) {
-	      	setRadioButtons(JSON.parse(txtReq.response));
-	      } else {
-	        alert('There was a problem with the request.');
-	      }
-	    }
-	}
-	const setRadioButtons  = (json) => {
+	
+	const setRadioButtons = (json) => {
 		let rbs = document.querySelector('#origin-text');
 		let snippets = document.querySelector('#snippets');
 		json.forEach((el)=>{
@@ -123,12 +152,16 @@
 		let firstSnippet = document.querySelector("#snippet-1");
 		firstSnippet.classList.add("active");
 
-		testSnippet = document.querySelector('.snippet-container.active p');
+		setCurrentTextSnippet();
+
 	}
+	
 
 	const selectTextSample = (e) => {
 		let buttonId = e.target.id.substr(3,1); //extract numeral from id;
 		let buttons = document.querySelectorAll(".opt");
+
+
 		if (e.target.classList.contains('active') ){
 			//do nothing
 		}else {
@@ -148,6 +181,7 @@
 				el.classList.remove("active");
 			}
 		})
+		setCurrentTextSnippet();
 	}
 
 	// Test if user Entry matches
@@ -181,20 +215,29 @@
 
 	const startOver = () => {
 		resetTimer();
+		updateErrors(0);
 		time = [0,0,0,0];
 		userEntry.value = '';
 		timer.innerHTML = '00:00:00';
 		userEntry.style.borderColor = 'gray';
 		userEntry.disabled = false;
 		timerRunning = false;
+		showPostScoreButton(false);
 	}
-
+	
+	const updateErrors = (count) => {
+		errors.textContent = count;
+	}
+	
 	const spellCheck = (e) => {
+
+		let testSnippet = setCurrentTextSnippet();
 		if(userEntry.value === testSnippet.innerHTML.substr(0, userEntry.value.length) ){
 
 			 if (userEntry.value.length === testSnippet.innerHTML.length ){
 			 	userEntry.style.borderColor = '#6ab04c';
 			 	userEntry.disabled = true;
+			 	showPostScoreButton(true);
 				resetTimer();
 
 			 }else {
@@ -204,34 +247,13 @@
 			userEntry.style.borderColor = '#eb4d4b';
 			if ( e.code !== "Backspace"){
 				errorCount++;
-				errors.textContent = errorCount;
+				updateErrors(errorCount);
 			}
 		}
 	}
 
-	userEntry.addEventListener('keypress', start, false);
-	userEntry.addEventListener('keyup', spellCheck, false);
-	btn.addEventListener('click', startOver, false);
-	logScore.addEventListener('click', handleLog);
-	postScore.addEventListener('click', postScoreReq);
-	// writebtn.addEventListener('click', fs.writeFile, false);
 
-	window.onload = makeTextReq;
-	window.onload = makeScoresReq;
+
+	init();
+	
 })();
-
-
-// var fs = require("fs");
-// var fileContent = "hello";
-
-// fs.writeFile("./sample.txt", fileContent, (err) => {
-//     if (err) {
-//         console.error(err);
-//         return;
-//     };
-//     console.log("File has been created");
-// });
-// fs.writeFile();
-
-//node for writing to a file
-

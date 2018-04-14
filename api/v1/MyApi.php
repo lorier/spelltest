@@ -25,26 +25,30 @@ class MyAPI extends API
     }
 
     /**
-     * Example of an Endpoint
+     * Scores endpoint
      */
-     protected function post_score() {
-        if ($this->method == 'GET') {
-            // echo $this->endpoint;
-            // return "Your name is " . $this->User->name;
-        } else if($this->method == 'POST') {
-            return 'Method is POST';
-        } else {
-            return "Only accepts GET requests";
-        }
-     }
      protected function scores(){
         if ($this->method == 'GET') {
             $file = ROOT_DIR .'/scores.json';
             $current = file_get_contents($file);
             // $current = json_encode($current);
             return $current;
+        } else if($this->method == 'POST') {
+
+           if( $_POST["date"] || $_POST["score"] ) {
+                $file = ROOT_DIR .'/scores.json';
+                $current = json_decode(file_get_contents($file), true);
+                
+                $obj = new stdClass();
+                $obj->date = urldecode($_POST["date"]);
+                $obj->score = urldecode($_POST["score"]);
+                array_unshift($current, $obj);
+                
+                file_put_contents($file, json_encode($current));
+           }
+           exit();
         } else {
-            return "Only accepts GET requests";
+             return "Error, malformed request.";
         }
      }
      protected function text_snippets(){

@@ -12,6 +12,12 @@ h1 {
 div {
 	margin-bottom: 20px;
 }
+.visible {
+	visibility: visible !important;
+}
+#post-score {
+	visibility: hidden;
+}
 .count {
 	color: lightgray;
 }

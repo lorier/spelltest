@@ -37,8 +37,8 @@ echo <<<EOT
 						</div>
 						<div>
 							<button id="startbutton" class="btn btn-lg btn-primary">Start Over</button>
-							<button id="log_score" class="btn btn-outline-secondary">Log this test!</button>
-							<button id="post_score" class="btn btn-outline-secondary">Post Your Score!</button>
+							
+							<button id="post-score" class="btn btn-outline-secondary">Post Your Score!</button>
 						</div>
 					</div>
 					<div class="col-md-4 stats">
@@ -60,7 +60,7 @@ echo <<<EOT
 			</div>
 		</div>
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
-		<script src="scripts.js"></script>
+		<script src="dist/js/all.js"></script>
 	</body>
 </html>
 

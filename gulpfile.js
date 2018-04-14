@@ -1,6 +1,18 @@
 var gulp = require('gulp'),
     less = require('gulp-less'),
-    livereload = require('gulp-livereload');
+    livereload = require('gulp-livereload'),
+    babel = require('gulp-babel'),
+    concat = require('gulp-concat'),
+    sourcemaps = require('gulp-sourcemaps'),
+    browserify = require('browserify'),
+    // browserify = require('gulp-browserify-globs');
+    source = require('vinyl-source-stream'),
+    babelify = require('babelify'),
+    util = require('gulp-util'),
+    glob = require('glob'),
+    buffer = require('vinyl-buffer');
+
+
  
 gulp.task('css', function() {
   gulp.src('*.css')
@@ -18,18 +30,33 @@ gulp.task('php', function() {
     .pipe(livereload());
 });
 gulp.task('scripts', function() {
-  gulp.src('scripts.js')
-    .pipe(gulp.dest('dist'))
+
+    var globs = glob.sync('./js/**/*.js');
+
+    browserify({
+      entries: globs,
+      debug: true
+    })
+    .transform(babelify)
+    .bundle()
+    .on('error', err => {
+      util.log("Browserify Error", util.colors.red(err.message))
+    })
+    .pipe(source('all.js'))
+    .pipe(buffer())
+    // .pipe(sourcemaps.init())
+    .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
-});
+}); 
+
 gulp.task('dotfiles', function() {
   gulp.src('.htaccess')
     .pipe(gulp.dest('dist'))
     .pipe(livereload());
 });
 gulp.task('copy', function() {
-  gulp.src('assets/*.*')
-    .pipe(gulp.dest('dist/assets'))
+  gulp.src('assets/*.*' )
+    .pipe(gulp.dest('dist'))
     .pipe(livereload());
 });
 gulp.task('api', function() {
@@ -42,7 +69,7 @@ gulp.task('watch', function() {
   gulp.watch('*.html', ['html']);
   gulp.watch('*.css', ['css']);
   gulp.watch('*.php', ['php']);
-  gulp.watch('scripts.js', ['scripts']);
+  gulp.watch('js/**/*.*', ['scripts']);
   gulp.watch('assets/*.*', ['copy']);
   gulp.watch('.htaccess', ['dotfiles']);
   gulp.watch('api/*/*.*', ['api']);
