@@ -45,12 +45,19 @@ class MyAPI extends API
                 array_unshift($current, $obj);
                 
                 file_put_contents($file, json_encode($current));
+
+                // return file_get_contents($file);
+
            }
            exit();
         } else {
              return "Error, malformed request.";
         }
      }
+     
+     /**
+     * Text Snippets endpoint
+     */
      protected function text_snippets(){
         if ($this->method == 'GET') {
             $file = ROOT_DIR .'/assets/text.json';

@@ -1,10 +1,8 @@
 import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } from './modules/helpers.js';
+import { makeRequest } from './modules/ajax.js';
 
 (function(){
 
-
-	// var testSnippet;
-	// var entryWrapper = document.querySelector('#test-wrapper');
 	var userEntry = document.querySelector('#test-area');
 	var timer = document.querySelector('#timer');
 	var btn = document.querySelector('#startbutton');
@@ -18,35 +16,39 @@ import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } fr
 	var time = [0,0,0,0];
 	var errorCount = 0;
 
-	// var txtReq;
-
 	var xhr;
 	
 	const init = () => {
+
+		
 		userEntry.addEventListener('keypress', start, false);
 		userEntry.addEventListener('keyup', spellCheck, false);
 		btn.addEventListener('click', startOver, false);
 		postScore.addEventListener('click', postScoreReq);
-		// writebtn.addEventListener('click', fs.writeFile, false);
 
 		window.onload = () => {
 			
-			//text
-			makeAjaxCall('GET', 'http://localhost/typingtest/dist/api/v1/text_snippets', setRadioButtons);
+			makeRequest('GET', 'http://localhost/typingtest/dist/api/v1/text_snippets')
+			.then( (data) => {
+				console.log('promise called with this data returned: ' + data );
+				createRadioButtons(data);
+			})
+			.catch(function(err){
+				console.error('there was an error at the promise call' + err.statusText);
+			});
 			
-			//scores
-			makeAjaxCall('GET', 'http://localhost/typingtest/dist/api/v1/scores', listScores);
+			updateScores();
 		}
-		
 	}
 
-	//AJAX POST SCORES 
 	const postScoreReq = () => {
 		let date = new Date();
 		let dateString = 
 					date.getHours() 
 					+ ':' 
-					+ date.getSeconds() 
+					+ (date.getMinutes() < 10 ? 0 + date.getMinutes().toString() : date.getMinutes())
+					+ ':' 
+					+ date.getSeconds()
 					+ ' ' 
 					+ (date.getMonth() + 1)
 					+ '-' 
@@ -54,25 +56,32 @@ import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } fr
 					+ '-' 
 					+ date.getFullYear();
 
-		let data = 'date=' + postEncodeURIComponent(dateString)
+		let queryString = 'date=' + postEncodeURIComponent(dateString)
 					+ '&score=' +  postEncodeURIComponent( timer.innerHTML.replace(/\s/g, '') );
+		console.log('query string: ' + queryString)
 
-		let xhr = new XMLHttpRequest();
-
-		makeAjaxCall('POST', 'http://localhost/typingtest/dist/api/v1/scores',  listScores, data);
-		//TODO ^^ modify ajax function to accept and test if args contain request header and data. Can these be passed as an object? Does ES6 do args?
 		
-		xhr.open('POST', 'http://localhost/typingtest/dist/api/v1/scores', true);
-		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhr.onreadystatechange = () => {
-			if( xhr.readyState === 4 && xhr.status === 200){
-			}
-		};
-		xhr.send(data);
-		console.log(data);
+		makeRequest('POST', 'http://localhost/typingtest/dist/api/v1/scores', queryString)
+		.then( () => {
+			//make a round trip GET request to update the UI with new scores list
+			updateScores();
+		})
+		.catch(function(err){
+			//TODO fix this error
+			console.error('There was an error at the promise call' + err.statusText);
+		});
 	}
 
-
+	const updateScores = () => {
+		makeRequest('GET', 'http://localhost/typingtest/dist/api/v1/scores')
+		.then( (data) => {
+			console.log('promise called with this data returned: ' + data );
+			listScores(data);
+		})
+		.catch(function(err){
+			console.error('there was an error at the promise call' + err.statusText);
+		});
+	}
 	
 	const listScores = (resp) => {
 		if (resp === null) {
@@ -91,28 +100,8 @@ import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } fr
 			list.appendChild(listItem);
 		})
 	}
-
-	//AJAX GET TEST TEXT
-	const makeAjaxCall = ( method, url, callback ) => {
-		let txtReq = new XMLHttpRequest();
-
-		txtReq.responseType = "json";
-		txtReq.onreadystatechange = () => {
-			if (txtReq.readyState === XMLHttpRequest.DONE) {
-		      if (txtReq.status === 200) {
-				console.log('xhr called for ' + url );
-		      	callback( JSON.parse(txtReq.response) );
-		      } else {
-		        alert('There was a problem with the request.');
-		      }
-		    }
-		};
-		txtReq.open( method, url );
-		txtReq.send();
-	}
-
 	
-	const setRadioButtons = (json) => {
+	const createRadioButtons = (json) => {
 		let rbs = document.querySelector('#origin-text');
 		let snippets = document.querySelector('#snippets');
 		json.forEach((el)=>{
@@ -251,8 +240,6 @@ import { postEncodeURIComponent, setCurrentTextSnippet, showPostScoreButton } fr
 			}
 		}
 	}
-
-
 
 	init();
 	
